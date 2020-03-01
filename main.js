@@ -1,8 +1,6 @@
 var circles = [];
 // var bpm = 116;
 // var totalLength = 1*60*1000 / bpm * 7;
-var msBetween = totalLength / (numberOfCircles - 1);
-var currentCircle = numberOfCircles - 1;
 
 var running = false;
 
@@ -14,7 +12,10 @@ var kickVol = 1.0;
 var snareVol = 1.0;
 var useEight = true;
 var useTriplet = false;
-var useSixteenth = true;
+var useSixteenth = true; //These values don't do anything, just moved them here from the HTML file
+
+var msBetween = totalLength / (numberOfCircles - 1);
+var currentCircle = numberOfCircles - 1;
 
 window.addEventListener('load', () => {
     loadBuffers();
