@@ -10,7 +10,7 @@ var sameBox = false;
 var playSounds = true;
 var kickVol = 1.0;
 var snareVol = 1.0;
-var useEight = true;
+var useEighth = true;
 var useTriplet = false;
 var useSixteenth = true; //These values don't do anything, just moved them here from the HTML file
 
@@ -18,6 +18,62 @@ var msBetween = totalLength / (numberOfCircles - 1);
 var currentCircle = numberOfCircles - 1;
 
 window.addEventListener('load', () => {
+    var urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.has('totalMs')){
+        document.getElementById('totalMs').value = urlParams.get('totalMs');
+    }
+    if(urlParams.has('numCircles')){
+        console.log("numCircles: "+urlParams.get('numCircles'));
+        document.getElementById('numCircles').value = urlParams.get('numCircles');
+    }
+    if(urlParams.has('pressYOn')){
+        if(urlParams.get('pressYOn') == "same"){
+            document.getElementById('same').checked = true;
+        }
+        else if(urlParams.get('pressYOn') == "firstLast"){
+            document.getElementById('firstLast').checked = true;
+        }
+    }
+    if(urlParams.has('useSound')){
+        if(urlParams.get('useSound') == "true"){
+            document.getElementById('useSound').checked = true;
+        }
+        else if(urlParams.get('useSound') == "false"){
+            document.getElementById('useSound').checked = false;
+        }
+    }
+    if(urlParams.has('useEighth')){
+        if(urlParams.get('useEighth') == "true"){
+            document.getElementById('useEighth').checked = true;
+        }
+        else if(urlParams.get('useEighth') == "false"){
+            document.getElementById('useEighth').checked = false;
+        }
+    }
+    if(urlParams.has('useTriplet')){
+        if(urlParams.get('useTriplet') == "true"){
+            document.getElementById('useTriplet').checked = true;
+        }
+        else if(urlParams.get('useTriplet') == "false"){
+            document.getElementById('useTriplet').checked = false;
+        }
+    }
+    if(urlParams.has('useSixteenth')){
+        if(urlParams.get('useSixteenth') == "true"){
+            document.getElementById('useSixteenth').checked = true;
+        }
+        else if(urlParams.get('useSixteenth') == "false"){
+            document.getElementById('useSixteenth').checked = false;
+        }
+    }
+    if(urlParams.has('kickVolume')){
+        document.getElementById('kickVol').value = urlParams.get('kickVolume');
+    }
+    if(urlParams.has('snareVolume')){
+        document.getElementById('snareVol').value = urlParams.get('snareVolume');
+    }
+    
+    
     loadBuffers();
     reset();
 
@@ -36,7 +92,7 @@ function run() {
                 playSound("kick", kickVol);
             }
             if (currentCircle == (numberOfCircles - 1) || (currentCircle == (numberOfCircles - 2) && !sameBox)) {
-                if (useEight) {
+                if (useEighth) {
                     playSound("snare", snareVol, msBetween / 2000);
                 }
                 if (useTriplet) {
@@ -74,12 +130,12 @@ function reset() {
 
 function update() {
     totalLength = document.getElementById("totalMs").value;
-    numberOfCircles = document.getElementById("numBoxes").value;
+    numberOfCircles = document.getElementById("numCircles").value;
     sameBox = document.getElementById("same").checked;
     playSounds = document.getElementById("useSound").checked;
     kickVol = document.getElementById("kickVol").value / 100;
     snareVol = document.getElementById("snareVol").value / 100;
-    useEight = document.getElementById("useEighth").checked;
+    useEighth = document.getElementById("useEighth").checked;
     useTriplet = document.getElementById("useTriplet").checked;
     useSixteenth = document.getElementById("useSixteenth").checked;
 
