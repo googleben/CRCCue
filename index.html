@@ -97,10 +97,11 @@
         source.connect(gainNode);
         gainNode.gain.value = vol;
         gainNode.connect(context.destination);
+        
         source.start(context.currentTime + time);
     }
 
-    loadBuffers();
+    
 </script>
 
 
@@ -113,10 +114,10 @@
     var msBetween = msTotal / (numSq - 1);
     var n = numSq - 1;
     var timeIn;
-    var boxesIn;
+    var circlesIn;
 
     var runN = 0;
-    var running = true;
+    var running = false;
     var sameBox = false;
 
     function run(a) {
@@ -132,11 +133,18 @@
         if (document.getElementById("useSound").checked) {
             var kickVol =  document.getElementById("kickVol").value / 100;
             var snareVol =  document.getElementById("snareVol").value / 100;
-            if (n==0) playSound("kick", kickVol);
-            if (n==(numSq-1) && !sameBox) playSound("kick", kickVol);
-            if (n==(numSq-1) || (n==(numSq-2) && !sameBox)) {
+            if (n==0 || (n==(numSq-1) && !sameBox)) playSound("kick", kickVol);
+            if (document.getElementById("useTriplet").checked && (n==(numSq-1) || (n==(numSq-2) && !sameBox))) {
                 playSound("snare", snareVol, msBetween/3000);
                 playSound("snare", snareVol, msBetween*2/3000);
+            }
+            if (document.getElementById("useEighth").checked && (n==(numSq-1) || (n==(numSq-2) && !sameBox))) {
+                playSound("snare", snareVol, msBetween/2000);
+            }
+            if (document.getElementById("useSixteenth").checked && (n==(numSq-1) || (n==(numSq-2) && !sameBox))) {
+                playSound("snare", snareVol, msBetween/4000);
+                playSound("snare", snareVol, msBetween*2/4000);
+                playSound("snare", snareVol, msBetween*3/4000);
             }
             playSound("snare", snareVol);
         }
@@ -153,43 +161,50 @@
         window.setTimeout(run, msBetween, a);
     }
 
-    
-
-    window.addEventListener('load', () => {
-
-        timeIn = document.getElementById("totalMs");
-        timeIn.value = msTotal;
-        boxesIn = document.getElementById("numBoxes");
-        boxesIn.value = numSq;
-
+    function makeSqs() {
         var start = document.getElementById("container");
-        
+        var same = document.getElementById("same").checked;
         for (var x = 0; x < numSq; x++) {
             sqs[x] = document.createElement("div");
             sqs[x].className = "timer red";
             start.appendChild(sqs[x]);
+            if (x==0 || (x == numSq - 1 && !same)) {
+                var p = document.createElement("p");
+                sqs[x].appendChild(p);
+                p.textContent = "Y"
+            }
         }
-        if (document.getElementById("same").checked) {
+    }
+
+    window.addEventListener('load', () => {
+
+        loadBuffers();
+
+        timeIn = document.getElementById("totalMs");
+        timeIn.value = msTotal;
+        circlesIn = document.getElementById("numBoxes");
+        circlesIn.value = numSq;
+
+        var start = document.getElementById("container");
+        var same = document.getElementById("same").checked;
+        makeSqs();
+        if (same) {
             msBetween = msTotal / (numSq);
             sameBox = true;
         } else sameBox = false;
         
-        scheduleRun(runN);
+        //scheduleRun(runN);
         
     });
 
     function reset() {
         msTotal = timeIn.value;
-        numSq = boxesIn.value;
+        numSq = circlesIn.value;
         msBetween = msTotal / (numSq - 1);
         
         for (var sq of sqs) sq.remove();
-        var start = document.getElementById("container");
-        for (var x = 0; x < numSq; x++) {
-            sqs[x] = document.createElement("div");
-            sqs[x].className = "timer red";
-            start.appendChild(sqs[x]);
-        }
+        
+        makeSqs();
         n = numSq - 1;
         if (document.getElementById("same").checked) {
             msBetween = msTotal / (numSq);
@@ -205,13 +220,38 @@
         width: 5em;
         height: 5em;
         margin-right: 1em;
-        display: inline-block;
+        display: flex;
+        margin-bottom: 10px;
+        border: 2px solid black;
+        border-radius: 50%;
     }
     .red {
         background-color: red;
     }
     .green {
         background-color: green;
+    }
+    * {
+        font-family: Arial, sans-serif;
+    }
+    p {
+        max-width: 45em;
+        margin-left: 2em;
+    }
+    .timer p {
+        margin:auto;
+        text-align: center;
+        font-size: 35px;
+        border: 5px black solid;
+        border-radius: 50%;
+        width: 50%;
+        height: 50%;
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+    #container {
+        display:flex;
+        flex-direction: row;
+        flex-wrap: wrap;
     }
 </style>
 </head>
@@ -220,23 +260,35 @@
 <div id="container">
 
 </div>
+<h1>
+    Settings
+</h1>
 Total milliseconds: 
 <input id="totalMs" type="text">
-<br/>
-Number of boxes:
+<br/><br/>
+Number of circles:
 <input id="numBoxes" type="text">
-<br/>
+<br/><br/>
 
 Press Y on:<br/>
 <input type="radio" id="firstLast" name="gender" value="firstLast">
-<label for="firstLast">First then last box</label><br>
+<label for="firstLast">First then last circle</label><br>
 <input type="radio" id="same" name="gender" value="same" checked="checked">
-<label for="same">Same box</label>
+<label for="same">Same circle</label>
 
-<br/>
-<input type="checkbox" id="useSound" name="useSound" value="useSound">
+<br/><br/>
+<input type="checkbox" id="useSound" name="useSound" value="useSound" checked="checked">
 <label for="useSound">Play sounds</label>
-<br>
+<br><br/>
+<input type="checkbox" id="useEighth" name="useEighth" value="useEighth" checked="checked">
+<label for="useEighth">Eighth before kick</label>
+<br/>
+<input type="checkbox" id="useTriplet" name="useTriplet" value="useTriplet" >
+<label for="useTriplet">Triplet before kick</label>
+<br/>
+<input type="checkbox" id="useSixteenth" name="useSixteenth" value="useSixteenth" >
+<label for="useSixteenth">Sixteenth before kick</label>
+<br/>
 Kick Volume:
 <input type="range" min="0" max="100" value="100" id="kickVol"><br/>
 Snare Volume:
@@ -244,6 +296,35 @@ Snare Volume:
 <button onclick="reset()">Set</button>
 <br/>
 <button onclick="stop(); running = false;">Stop</button> <button onclick="if (!running) {running = true; n = numSq-1; scheduleRun(runN);}">Start</button>
+<br/>
+<h1>
+    Instructions
+</h1>
+<p>
+    This is a visual and audio cue for the inputs required to perform a CRC. Click set to apply changes to the settings, and stop and start act like they sound. Align your Y presses with the color of the circles and the sounds as described by the settings you choose, on the circles which are marked with a Y. Press "Start" to begin.
+</p>
+<h2>Controls</h2>
+<p>
+    <b>Total milliseconds:</b> The total amount of time between button presses. By default, this value is 3102 milliseconds, which is just about in the middle of the window for a CRC. You can adjust this value to fit whatever has the best consistency for you.
+</p>
+<p>
+    <b>Number of circles:</b> The number of circles and drum beats to fit between the button presses.
+</p>
+<p>
+    <b>First then last circle:</b> The first button press should occur on the first circle, and the second button press should occur on the last circle. (i.e. press Y to initiate cappy return when the first circle turns green, then press Y again to finish the CRC when the last circle turns green).
+</p>
+<p>
+    <b>Same circle:</b> Each button press should occur on the first circle. (i.e. press Y to initiate cappy return when the first circle turns green, then press Y again to finish the CRC when the first circle turns green again).
+</p>
+<p>
+    <b>Play sounds:</b> Whether the kick and snare audio cues are played.
+</p>
+<p>
+    <b>Eighth/Triplet/Sixteenth before kick:</b> Plays a snare drum eighth/triplet/sixteenth on the beat before a kick drum (to help anticipate a kick beat without counting).
+</p>
+<p>
+    <b>Kick/Snare Volume:</b> The volume of the kick and snare in the audio cue.
+</p>
 </body>
 
 </html>
