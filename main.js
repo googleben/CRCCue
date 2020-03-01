@@ -4,7 +4,7 @@ var circles = [];
 var msBetween = totalLength / (numberOfCircles - 1);
 var currentCircle = numberOfCircles - 1;
 
-var nextTimeout = 0;
+var running = false;
 
 var totalLength = 3102;
 var numberOfCircles = 8;
@@ -20,50 +20,50 @@ window.addEventListener('load', () => {
     loadBuffers();
     reset();
 
-    //scheduleRun();
+    scheduleRun();
 });
 
 function run() {
     update();
-    if (currentCircle >= numberOfCircles) currentCircle = numberOfCircles - 1;
-    circles[currentCircle].className = "timer red";
-    currentCircle++;
-    if (currentCircle == numberOfCircles) currentCircle = 0;
-    circles[currentCircle].className = "timer green";
-    if (playSounds) {
-        if (currentCircle == 0 || (currentCircle == (numberOfCircles - 1) && !sameBox)) playSound("kick", kickVol);
-        if (currentCircle == (numberOfCircles - 1) || (currentCircle == (numberOfCircles - 2) && !sameBox)) {
-            if (useEight) {
-                playSound("snare", snareVol, msBetween / 2000);
+    if (running) {
+        circles[currentCircle].className = "timer red";
+        currentCircle++;
+        if (currentCircle == numberOfCircles) currentCircle = 0;
+        circles[currentCircle].className = "timer green";
+        if (playSounds) {
+            if (currentCircle == 0 || (currentCircle == (numberOfCircles - 1) && !sameBox)) {
+                playSound("kick", kickVol);
             }
-            if (useTriplet) {
-                playSound("snare", snareVol, msBetween / 3000);
-                playSound("snare", snareVol, msBetween * 2 / 3000);
+            if (currentCircle == (numberOfCircles - 1) || (currentCircle == (numberOfCircles - 2) && !sameBox)) {
+                if (useEight) {
+                    playSound("snare", snareVol, msBetween / 2000);
+                }
+                if (useTriplet) {
+                    playSound("snare", snareVol, msBetween / 3000);
+                    playSound("snare", snareVol, msBetween * 2 / 3000);
+                }
+                if (useSixteenth) {
+                    playSound("snare", snareVol, msBetween / 4000);
+                    playSound("snare", snareVol, msBetween * 2 / 4000);
+                    playSound("snare", snareVol, msBetween * 3 / 4000);
+                }
             }
-            if (useSixteenth) {
-                playSound("snare", snareVol, msBetween / 4000);
-                playSound("snare", snareVol, msBetween * 2 / 4000);
-                playSound("snare", snareVol, msBetween * 3 / 4000);
-            }
+            playSound("snare", snareVol);
         }
-        playSound("snare", snareVol);
     }
     scheduleRun();
 }
 
 function start() {
-    if (nextTimeout == 0) {
+    if (!running) {
+        running = true;
         reset();
-        scheduleRun();
     }
 }
 
 function stop() {
     for (var circle of circles) circle.className = "timer red";
-    if (nextTimeout != 0) {
-        clearTimeout(nextTimeout);
-        nextTimeout = 0; //not running
-    }
+    running = false;
 }
 
 function reset() {
