@@ -1,0 +1,249 @@
+<html>
+
+<head>
+<script>
+    // Keep track of all loaded buffers.
+    var BUFFERS = {};
+    // Page-wide audio context.
+    var context = new AudioContext();;
+
+    function BufferLoader(context, urlList, callback) {
+        this.context = context;
+        this.urlList = urlList;
+        this.onload = callback;
+        this.bufferList = new Array();
+        this.loadCount = 0;
+    }
+
+    BufferLoader.prototype.loadBuffer = function(url, index) {
+        // Load buffer asynchronously
+        var request = new XMLHttpRequest();
+        request.open("GET", url, true);
+        request.responseType = "arraybuffer";
+
+        var loader = this;
+
+        request.onload = function() {
+            // Asynchronously decode the audio file data in request.response
+            loader.context.decodeAudioData(
+                request.response,
+                function(buffer) {
+                    if (!buffer) {
+                    alert('error decoding file data: ' + url);
+                    return;
+                    }
+                    loader.bufferList[index] = buffer;
+                    if (++loader.loadCount == loader.urlList.length)
+                    loader.onload(loader.bufferList);
+                },
+                function(error) {
+                    console.error('decodeAudioData error', error);
+                }
+            );
+        }
+
+        request.onerror = function() {
+            alert('BufferLoader: XHR error');
+        }
+
+        request.send();
+        }
+
+        BufferLoader.prototype.load = function() {
+        for (var i = 0; i < this.urlList.length; ++i)
+            this.loadBuffer(this.urlList[i], i);
+    }
+
+
+    // An object to track the buffers to load {name: path}
+    var BUFFERS_TO_LOAD = {
+        kick: 'kick.wav',
+        snare: 'snare.wav',
+    };
+
+    // Loads all sound samples into the buffers object.
+    function loadBuffers() {
+        // Array-ify
+        var names = [];
+        var paths = [];
+        for (var name in BUFFERS_TO_LOAD) {
+            var path = BUFFERS_TO_LOAD[name];
+            names.push(name);
+            paths.push(path);
+            
+        }
+        bufferLoader = new BufferLoader(context, paths, function(bufferList) {
+            for (var i = 0; i < bufferList.length; i++) {
+            var buffer = bufferList[i];
+            var name = names[i];
+            BUFFERS[name] = buffer;
+            }
+        });
+        bufferLoader.load();
+    }
+
+    function playSound(sound, vol, time) {
+        if (!time) time = 0;
+        if (!vol) vol = 1;
+        if (!sound) sound = "snare";
+        var kick = BUFFERS.kick;
+        var snare = BUFFERS.snare;
+        var buffer;
+        if (sound === "kick") buffer = kick;
+        if (sound === "snare") buffer = snare;
+        var source = context.createBufferSource();
+        source.buffer = buffer;
+        var gainNode = context.createGain();
+        source.connect(gainNode);
+        gainNode.gain.value = vol;
+        gainNode.connect(context.destination);
+        source.start(context.currentTime + time);
+    }
+
+    loadBuffers();
+</script>
+
+
+<script>
+    var sqs = [];
+    var numSq = 8;
+    // var bpm = 116;
+    // var msTotal = 1*60*1000 / bpm * 7;
+    var msTotal = 3102;
+    var msBetween = msTotal / (numSq - 1);
+    var n = numSq - 1;
+    var timeIn;
+    var boxesIn;
+
+    var runN = 0;
+    var running = true;
+    var sameBox = false;
+
+    function run(a) {
+        if (a != runN) return;
+
+        
+
+        if (n >= numSq) n = numSq - 1;
+        sqs[n].className = "timer red";
+        n++;
+        if (n == numSq) n = 0;
+        sqs[n].className = "timer green";
+        if (document.getElementById("useSound").checked) {
+            var kickVol =  document.getElementById("kickVol").value / 100;
+            var snareVol =  document.getElementById("snareVol").value / 100;
+            if (n==0) playSound("kick", kickVol);
+            if (n==(numSq-1) && !sameBox) playSound("kick", kickVol);
+            if (n==(numSq-1) || (n==(numSq-2) && !sameBox)) {
+                playSound("snare", snareVol, msBetween/3000);
+                playSound("snare", snareVol, msBetween*2/3000);
+            }
+            playSound("snare", snareVol);
+        }
+        scheduleRun(a);
+    }
+
+    function stop() {
+        runN++;
+        running = false;
+        for (var sq of sqs) sq.className = "timer red";
+    }
+
+    function scheduleRun(a) {
+        window.setTimeout(run, msBetween, a);
+    }
+
+    
+
+    window.addEventListener('load', () => {
+
+        timeIn = document.getElementById("totalMs");
+        timeIn.value = msTotal;
+        boxesIn = document.getElementById("numBoxes");
+        boxesIn.value = numSq;
+
+        var start = document.getElementById("container");
+        
+        for (var x = 0; x < numSq; x++) {
+            sqs[x] = document.createElement("div");
+            sqs[x].className = "timer red";
+            start.appendChild(sqs[x]);
+        }
+        if (document.getElementById("same").checked) {
+            msBetween = msTotal / (numSq);
+            sameBox = true;
+        } else sameBox = false;
+        
+        scheduleRun(runN);
+        
+    });
+
+    function reset() {
+        msTotal = timeIn.value;
+        numSq = boxesIn.value;
+        msBetween = msTotal / (numSq - 1);
+        
+        for (var sq of sqs) sq.remove();
+        var start = document.getElementById("container");
+        for (var x = 0; x < numSq; x++) {
+            sqs[x] = document.createElement("div");
+            sqs[x].className = "timer red";
+            start.appendChild(sqs[x]);
+        }
+        n = numSq - 1;
+        if (document.getElementById("same").checked) {
+            msBetween = msTotal / (numSq);
+            sameBox = true;
+        } else sameBox = false;
+        
+    }
+    
+    
+</script>
+<style>
+    .timer {
+        width: 5em;
+        height: 5em;
+        margin-right: 1em;
+        display: inline-block;
+    }
+    .red {
+        background-color: red;
+    }
+    .green {
+        background-color: green;
+    }
+</style>
+</head>
+
+<body>
+<div id="container">
+
+</div>
+Total milliseconds: 
+<input id="totalMs" type="text">
+<br/>
+Number of boxes:
+<input id="numBoxes" type="text">
+<br/>
+
+Press Y on:<br/>
+<input type="radio" id="firstLast" name="gender" value="firstLast">
+<label for="firstLast">First then last box</label><br>
+<input type="radio" id="same" name="gender" value="same" checked="checked">
+<label for="same">Same box</label>
+
+<br/>
+<input type="checkbox" id="useSound" name="useSound" value="useSound">
+<label for="useSound">Play sounds</label>
+<br>
+Kick Volume:
+<input type="range" min="0" max="100" value="100" id="kickVol"><br/>
+Snare Volume:
+<input type="range" min="0" max="100" value="100" id="snareVol"><br/>
+<button onclick="reset()">Set</button>
+<br/>
+<button onclick="stop(); running = false;">Stop</button> <button onclick="if (!running) {running = true; n = numSq-1; scheduleRun(runN);}">Start</button>
+</body>
+
+</html>
