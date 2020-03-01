@@ -1,330 +1,82 @@
 <html>
 
 <head>
-<script>
-    // Keep track of all loaded buffers.
-    var BUFFERS = {};
-    // Page-wide audio context.
-    var context = new AudioContext();;
 
-    function BufferLoader(context, urlList, callback) {
-        this.context = context;
-        this.urlList = urlList;
-        this.onload = callback;
-        this.bufferList = new Array();
-        this.loadCount = 0;
-    }
+    <script type="text/javascript" src="fileManager.js"></script>
+    <script type="text/javascript" src="main.js"></script>
 
-    BufferLoader.prototype.loadBuffer = function(url, index) {
-        // Load buffer asynchronously
-        var request = new XMLHttpRequest();
-        request.open("GET", url, true);
-        request.responseType = "arraybuffer";
+    <link rel="stylesheet" type="text/css" href="style.css" />
 
-        var loader = this;
-
-        request.onload = function() {
-            // Asynchronously decode the audio file data in request.response
-            loader.context.decodeAudioData(
-                request.response,
-                function(buffer) {
-                    if (!buffer) {
-                    alert('error decoding file data: ' + url);
-                    return;
-                    }
-                    loader.bufferList[index] = buffer;
-                    if (++loader.loadCount == loader.urlList.length)
-                    loader.onload(loader.bufferList);
-                },
-                function(error) {
-                    console.error('decodeAudioData error', error);
-                }
-            );
-        }
-
-        request.onerror = function() {
-            alert('BufferLoader: XHR error');
-        }
-
-        request.send();
-        }
-
-        BufferLoader.prototype.load = function() {
-        for (var i = 0; i < this.urlList.length; ++i)
-            this.loadBuffer(this.urlList[i], i);
-    }
-
-
-    // An object to track the buffers to load {name: path}
-    var BUFFERS_TO_LOAD = {
-        kick: 'kick.wav',
-        snare: 'snare.wav',
-    };
-
-    // Loads all sound samples into the buffers object.
-    function loadBuffers() {
-        // Array-ify
-        var names = [];
-        var paths = [];
-        for (var name in BUFFERS_TO_LOAD) {
-            var path = BUFFERS_TO_LOAD[name];
-            names.push(name);
-            paths.push(path);
-            
-        }
-        bufferLoader = new BufferLoader(context, paths, function(bufferList) {
-            for (var i = 0; i < bufferList.length; i++) {
-            var buffer = bufferList[i];
-            var name = names[i];
-            BUFFERS[name] = buffer;
-            }
-        });
-        bufferLoader.load();
-    }
-
-    function playSound(sound, vol, time) {
-        if (!time) time = 0;
-        if (!vol) vol = 1;
-        if (!sound) sound = "snare";
-        var kick = BUFFERS.kick;
-        var snare = BUFFERS.snare;
-        var buffer;
-        if (sound === "kick") buffer = kick;
-        if (sound === "snare") buffer = snare;
-        var source = context.createBufferSource();
-        source.buffer = buffer;
-        var gainNode = context.createGain();
-        source.connect(gainNode);
-        gainNode.gain.value = vol;
-        gainNode.connect(context.destination);
-        
-        source.start(context.currentTime + time);
-    }
-
-    
-</script>
-
-
-<script>
-    var sqs = [];
-    var numSq = 8;
-    // var bpm = 116;
-    // var msTotal = 1*60*1000 / bpm * 7;
-    var msTotal = 3102;
-    var msBetween = msTotal / (numSq - 1);
-    var n = numSq - 1;
-    var timeIn;
-    var circlesIn;
-
-    var runN = 0;
-    var running = false;
-    var sameBox = false;
-
-    function run(a) {
-        if (a != runN) return;
-
-        
-
-        if (n >= numSq) n = numSq - 1;
-        sqs[n].className = "timer red";
-        n++;
-        if (n == numSq) n = 0;
-        sqs[n].className = "timer green";
-        if (document.getElementById("useSound").checked) {
-            var kickVol =  document.getElementById("kickVol").value / 100;
-            var snareVol =  document.getElementById("snareVol").value / 100;
-            if (n==0 || (n==(numSq-1) && !sameBox)) playSound("kick", kickVol);
-            if (document.getElementById("useTriplet").checked && (n==(numSq-1) || (n==(numSq-2) && !sameBox))) {
-                playSound("snare", snareVol, msBetween/3000);
-                playSound("snare", snareVol, msBetween*2/3000);
-            }
-            if (document.getElementById("useEighth").checked && (n==(numSq-1) || (n==(numSq-2) && !sameBox))) {
-                playSound("snare", snareVol, msBetween/2000);
-            }
-            if (document.getElementById("useSixteenth").checked && (n==(numSq-1) || (n==(numSq-2) && !sameBox))) {
-                playSound("snare", snareVol, msBetween/4000);
-                playSound("snare", snareVol, msBetween*2/4000);
-                playSound("snare", snareVol, msBetween*3/4000);
-            }
-            playSound("snare", snareVol);
-        }
-        scheduleRun(a);
-    }
-
-    function stop() {
-        runN++;
-        running = false;
-        for (var sq of sqs) sq.className = "timer red";
-    }
-
-    function scheduleRun(a) {
-        window.setTimeout(run, msBetween, a);
-    }
-
-    function makeSqs() {
-        var start = document.getElementById("container");
-        var same = document.getElementById("same").checked;
-        for (var x = 0; x < numSq; x++) {
-            sqs[x] = document.createElement("div");
-            sqs[x].className = "timer red";
-            start.appendChild(sqs[x]);
-            if (x==0 || (x == numSq - 1 && !same)) {
-                var p = document.createElement("p");
-                sqs[x].appendChild(p);
-                p.textContent = "Y"
-            }
-        }
-    }
-
-    window.addEventListener('load', () => {
-
-        loadBuffers();
-
-        timeIn = document.getElementById("totalMs");
-        timeIn.value = msTotal;
-        circlesIn = document.getElementById("numBoxes");
-        circlesIn.value = numSq;
-
-        var start = document.getElementById("container");
-        var same = document.getElementById("same").checked;
-        makeSqs();
-        if (same) {
-            msBetween = msTotal / (numSq);
-            sameBox = true;
-        } else sameBox = false;
-        
-        //scheduleRun(runN);
-        
-    });
-
-    function reset() {
-        msTotal = timeIn.value;
-        numSq = circlesIn.value;
-        msBetween = msTotal / (numSq - 1);
-        
-        for (var sq of sqs) sq.remove();
-        
-        makeSqs();
-        n = numSq - 1;
-        if (document.getElementById("same").checked) {
-            msBetween = msTotal / (numSq);
-            sameBox = true;
-        } else sameBox = false;
-        
-    }
-    
-    
-</script>
-<style>
-    .timer {
-        width: 5em;
-        height: 5em;
-        margin-right: 1em;
-        display: flex;
-        margin-bottom: 10px;
-        border: 2px solid black;
-        border-radius: 50%;
-    }
-    .red {
-        background-color: red;
-    }
-    .green {
-        background-color: green;
-    }
-    * {
-        font-family: Arial, sans-serif;
-    }
-    p {
-        max-width: 45em;
-        margin-left: 2em;
-    }
-    .timer p {
-        margin:auto;
-        text-align: center;
-        font-size: 35px;
-        border: 5px black solid;
-        border-radius: 50%;
-        width: 50%;
-        height: 50%;
-        background-color: rgba(0, 0, 0, 0.3);
-    }
-    #container {
-        display:flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-</style>
 </head>
 
 <body>
-<div id="container">
+    <div id="container"><!-- contains all of the circles to show the beat --></div>
+    
+    <h1>Settings</h1>
+    Total milliseconds:
+    <input id="totalMs" type="text">
+    <br/>
+    <br/> Number of circles:
+    <input id="numBoxes" type="text">
+    <br/>
+    <br/> Press Y on:
+    <br/>
+    <input type="radio" id="firstLast" name="gender" value="firstLast">
+    <label for="firstLast">First then last circle</label>
+    <br>
+    <input type="radio" id="same" name="gender" value="same" checked="checked">
+    <label for="same">Same circle</label>
 
-</div>
-<h1>
-    Settings
-</h1>
-Total milliseconds: 
-<input id="totalMs" type="text">
-<br/><br/>
-Number of circles:
-<input id="numBoxes" type="text">
-<br/><br/>
-
-Press Y on:<br/>
-<input type="radio" id="firstLast" name="gender" value="firstLast">
-<label for="firstLast">First then last circle</label><br>
-<input type="radio" id="same" name="gender" value="same" checked="checked">
-<label for="same">Same circle</label>
-
-<br/><br/>
-<input type="checkbox" id="useSound" name="useSound" value="useSound" checked="checked">
-<label for="useSound">Play sounds</label>
-<br><br/>
-<input type="checkbox" id="useEighth" name="useEighth" value="useEighth" checked="checked">
-<label for="useEighth">Eighth before kick</label>
-<br/>
-<input type="checkbox" id="useTriplet" name="useTriplet" value="useTriplet" >
-<label for="useTriplet">Triplet before kick</label>
-<br/>
-<input type="checkbox" id="useSixteenth" name="useSixteenth" value="useSixteenth" >
-<label for="useSixteenth">Sixteenth before kick</label>
-<br/>
-Kick Volume:
-<input type="range" min="0" max="100" value="100" id="kickVol"><br/>
-Snare Volume:
-<input type="range" min="0" max="100" value="100" id="snareVol"><br/>
-<button onclick="reset()">Set</button>
-<br/>
-<button onclick="stop(); running = false;">Stop</button> <button onclick="if (!running) {running = true; n = numSq-1; scheduleRun(runN);}">Start</button>
-<br/>
-<h1>
-    Instructions
-</h1>
-<p>
-    This is a visual and audio cue for the inputs required to perform a CRC. Click set to apply changes to the settings, and stop and start act like they sound. Align your Y presses with the color of the circles and the sounds as described by the settings you choose, on the circles which are marked with a Y. Press "Start" to begin.
-</p>
-<h2>Controls</h2>
-<p>
-    <b>Total milliseconds:</b> The total amount of time between button presses. By default, this value is 3102 milliseconds, which is just about in the middle of the window for a CRC. You can adjust this value to fit whatever has the best consistency for you.
-</p>
-<p>
-    <b>Number of circles:</b> The number of circles and drum beats to fit between the button presses.
-</p>
-<p>
-    <b>First then last circle:</b> The first button press should occur on the first circle, and the second button press should occur on the last circle. (i.e. press Y to initiate cappy return when the first circle turns green, then press Y again to finish the CRC when the last circle turns green).
-</p>
-<p>
-    <b>Same circle:</b> Each button press should occur on the first circle. (i.e. press Y to initiate cappy return when the first circle turns green, then press Y again to finish the CRC when the first circle turns green again).
-</p>
-<p>
-    <b>Play sounds:</b> Whether the kick and snare audio cues are played.
-</p>
-<p>
-    <b>Eighth/Triplet/Sixteenth before kick:</b> Plays a snare drum eighth/triplet/sixteenth on the beat before a kick drum (to help anticipate a kick beat without counting).
-</p>
-<p>
-    <b>Kick/Snare Volume:</b> The volume of the kick and snare in the audio cue.
-</p>
+    <br/>
+    <br/>
+    <input type="checkbox" id="useSound" name="useSound" value="useSound" checked="checked">
+    <label for="useSound">Play sounds</label>
+    <br>
+    <br/>
+    <input type="checkbox" id="useEighth" name="useEighth" value="useEighth" checked="checked">
+    <label for="useEighth">Eighth before kick</label>
+    <br/>
+    <input type="checkbox" id="useTriplet" name="useTriplet" value="useTriplet">
+    <label for="useTriplet">Triplet before kick</label>
+    <br/>
+    <input type="checkbox" id="useSixteenth" name="useSixteenth" value="useSixteenth">
+    <label for="useSixteenth">Sixteenth before kick</label>
+    <br/> Kick Volume:
+    <input type="range" min="0" max="100" value="100" id="kickVol">
+    <br/> Snare Volume:
+    <input type="range" min="0" max="100" value="100" id="snareVol">
+    <br/>
+    <button onclick="reset()">Set</button>
+    <br/>
+    <button onclick="stop(); running = false;">Stop</button>
+    <button onclick="if (!running) {running = true; n = numSq-1; scheduleRun(runN);}">Start</button>
+    <br/>
+    <h1>Instructions</h1>
+    <p>
+        This is a visual and audio cue for the inputs required to perform a CRC. Click set to apply changes to the settings, and stop and start act like they sound. Align your Y presses with the color of the circles and the sounds as described by the settings you choose, on the circles which are marked with a Y. Press "Start" to begin.
+    </p>
+    <h2>Controls</h2>
+    <p>
+        <b>Total milliseconds:</b> The total amount of time between button presses. By default, this value is 3102 milliseconds, which is just about in the middle of the window for a CRC. You can adjust this value to fit whatever has the best consistency for you.
+    </p>
+    <p>
+        <b>Number of circles:</b> The number of circles and drum beats to fit between the button presses.
+    </p>
+    <p>
+        <b>First then last circle:</b> The first button press should occur on the first circle, and the second button press should occur on the last circle. (i.e. press Y to initiate cappy return when the first circle turns green, then press Y again to finish the CRC when the last circle turns green).
+    </p>
+    <p>
+        <b>Same circle:</b> Each button press should occur on the first circle. (i.e. press Y to initiate cappy return when the first circle turns green, then press Y again to finish the CRC when the first circle turns green again).
+    </p>
+    <p>
+        <b>Play sounds:</b> Whether the kick and snare audio cues are played.
+    </p>
+    <p>
+        <b>Eighth/Triplet/Sixteenth before kick:</b> Plays a snare drum eighth/triplet/sixteenth on the beat before a kick drum (to help anticipate a kick beat without counting).
+    </p>
+    <p>
+        <b>Kick/Snare Volume:</b> The volume of the kick and snare in the audio cue.
+    </p>
 </body>
 
 </html>

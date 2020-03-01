@@ -1,0 +1,37 @@
+.timer {
+    width: 5em;
+    height: 5em;
+    margin-right: 1em;
+    display: flex;
+    margin-bottom: 10px;
+    border: 2px solid black;
+    border-radius: 50%;
+}
+.red {
+    background-color: red;
+}
+.green {
+    background-color: green;
+}
+* {
+    font-family: Arial, sans-serif;
+}
+p {
+    max-width: 45em;
+    margin-left: 2em;
+}
+.timer p {
+    margin:auto;
+    text-align: center;
+    font-size: 35px;
+    border: 5px black solid;
+    border-radius: 50%;
+    width: 50%;
+    height: 50%;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+#container {
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
