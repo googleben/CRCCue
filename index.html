@@ -15,13 +15,13 @@
     <h1>Settings</h1>
     
     <label for="totalMs">Total milliseconds:</label>
-    <input id="totalMs" type="text">
+    <input id="totalMs" type="text" value="3102">
     
     <br/>
     <br/>
     
     <label for="numBoxes">Number of circles:</label>
-    <input id="numBoxes" type="text">
+    <input id="numBoxes" type="text" value="8">
     
     <br/>
     <br/>
@@ -79,8 +79,11 @@
     <button onclick="reset()">Set</button>
     <br/>
     <button onclick="stop(); running = false;">Stop</button>
-    <button onclick="if (!running) {running = true; n = numSq-1; scheduleRun(runN);}">Start</button>
+    <button onclick="if (!running) {running = true; n = numberOfCircles-1; scheduleRun(runN);}">Start</button>
+    
     <br/>
+    <br/>
+    
     <h1>Instructions</h1>
     <p>
         This is a visual and audio cue for the inputs required to perform a CRC. Click set to apply changes to the settings, and stop and start act like they sound. Align your Y presses with the color of the circles and the sounds as described by the settings you choose, on the circles which are marked with a Y. Press "Start" to begin.
