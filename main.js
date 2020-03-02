@@ -56,6 +56,28 @@ function run() {
     scheduleRun();
 }
 
+function scheduleRun() {
+    nextTimeout = window.setTimeout(run, msBetween);
+}
+
+function makeCircles() {
+    for (var circle of circles) circle.remove(); //remove all existing circles
+    circles = [];
+    var container = document.getElementById("container");
+    var same = document.getElementById("same").checked;
+    for (var x = 0; x < numberOfCircles; x++) {
+        circles[x] = document.createElement("div");
+        circles[x].className = "timer red";
+        container.appendChild(circles[x]);
+
+        if (x == 0 || (x == numberOfCircles - 1 && !same)) { //add Y to circle if first or (last AND same selected)
+            var p = document.createElement("p");
+            circles[x].appendChild(p);
+            p.textContent = "Y"
+        }
+    }
+}
+
 function start() {
     if(Object.keys(BUFFERS).length == 0){ //Sounds not loaded yet
         loadBuffers();
@@ -86,6 +108,9 @@ function update() {
     useEighth = document.getElementById("useEighth").checked;
     useTriplet = document.getElementById("useTriplet").checked;
     useSixteenth = document.getElementById("useSixteenth").checked;
+    
+    var url = getURLForCurrentSettings();
+    document.getElementById("url").href = url;
 
     msBetween = totalLength / (numberOfCircles - 1);
     if (same) msBetween = totalLength / (numberOfCircles);
@@ -143,6 +168,34 @@ function loadValuesFromObj(obj){
     document.getElementById('snareVol').value = obj.snareVol;
 }
 
+function getURLForCurrentSettings(){
+    var url = "/CRCCue/?totalMs=";
+    url += document.getElementById('totalMs').value;
+    url += "&numCircles=";
+    url += document.getElementById('numCircles').value;
+    url += "&pressYOn=";
+    if(document.getElementById('same').checked) url += "same";
+    else url += "firstLast";
+    url += "&useSound=";
+    if(document.getElementById('useSound').checked) url += "true";
+    else url += "false";
+    url += "&useEighth=";
+    if(document.getElementById('useEighth').checked) url += "true";
+    else url += "false";
+    url += "&useTriplet=";
+    if(document.getElementById('useTriplet').checked) url += "true";
+    else url += "false";
+    url += "&useSixteenth=";
+    if(document.getElementById('useSixteenth').checked) url += "true";
+    else url += "false";
+    url += "&kickVolume=";
+    url += document.getElementById('kickVol').value;
+    url += "&snareVolume=";
+    url += document.getElementById('snareVol').value;
+    
+    return url;
+}
+
 function setDefaultsByURLQuery(){
     var urlParams = new URLSearchParams(window.location.search);
     if(urlParams.has('totalMs')){
@@ -196,27 +249,5 @@ function setDefaultsByURLQuery(){
     }
     if(urlParams.has('snareVolume')){
         document.getElementById('snareVol').value = urlParams.get('snareVolume');
-    }
-}
-
-function scheduleRun() {
-    nextTimeout = window.setTimeout(run, msBetween);
-}
-
-function makeCircles() {
-    for (var circle of circles) circle.remove(); //remove all existing circles
-    circles = [];
-    var container = document.getElementById("container");
-    var same = document.getElementById("same").checked;
-    for (var x = 0; x < numberOfCircles; x++) {
-        circles[x] = document.createElement("div");
-        circles[x].className = "timer red";
-        container.appendChild(circles[x]);
-
-        if (x == 0 || (x == numberOfCircles - 1 && !same)) { //add Y to circle if first or (last AND same selected)
-            var p = document.createElement("p");
-            circles[x].appendChild(p);
-            p.textContent = "Y"
-        }
     }
 }
