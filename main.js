@@ -123,7 +123,6 @@ function saveValuesToObj(){
 function loadCookie(){
     var result = document.cookie.match(new RegExp(name + '=([^;]+)'));
     result && (result = JSON.parse(decodeURIComponent(result[1])));
-    console.log(result);
     loadValuesFromObj(result);
 }
 
@@ -135,7 +134,6 @@ function loadValuesFromObj(obj){
     }
     else {
         document.getElementById('firstLast').checked = true;
-        console.log("firstlast");
     }
     document.getElementById('useSound').value = obj.useSound;
     document.getElementById('useEighth').value = obj.useEighth;
