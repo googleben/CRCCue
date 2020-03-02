@@ -20,7 +20,6 @@ var currentCircle = numberOfCircles - 1;
 window.addEventListener('load', () => {
     setDefaultsByURLQuery();
     
-    loadBuffers();
     reset();
 
     scheduleRun();
@@ -58,6 +57,9 @@ function run() {
 }
 
 function start() {
+    if(Object.keys(BUFFERS).length == 0){ //Sounds not loaded yet
+        loadBuffers();
+    }
     if (!running) {
         running = true;
         reset();
@@ -84,8 +86,6 @@ function update() {
     useEighth = document.getElementById("useEighth").checked;
     useTriplet = document.getElementById("useTriplet").checked;
     useSixteenth = document.getElementById("useSixteenth").checked;
-    
-    console.log(kickVol);
 
     msBetween = totalLength / (numberOfCircles - 1);
     if (same) msBetween = totalLength / (numberOfCircles);
@@ -99,7 +99,6 @@ function setDefaultsByURLQuery(){
         document.getElementById('totalMs').value = urlParams.get('totalMs');
     }
     if(urlParams.has('numCircles')){
-        console.log("numCircles: "+urlParams.get('numCircles'));
         document.getElementById('numCircles').value = urlParams.get('numCircles');
     }
     if(urlParams.has('pressYOn')){

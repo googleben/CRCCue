@@ -1,7 +1,7 @@
 // Keep track of all loaded buffers.
 var BUFFERS = {};
 // Page-wide audio context.
-var context = new AudioContext();;
+var context;
 
 function BufferLoader(context, urlList, callback) {
     this.context = context;
@@ -59,6 +59,7 @@ var BUFFERS_TO_LOAD = {
 
 // Loads all sound samples into the buffers object.
 function loadBuffers() {
+    context = new AudioContext();
     // Array-ify
     var names = [];
     var paths = [];
