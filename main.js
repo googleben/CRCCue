@@ -18,6 +18,82 @@ var msBetween = totalLength / (numberOfCircles - 1);
 var currentCircle = numberOfCircles - 1;
 
 window.addEventListener('load', () => {
+    setDefaultsByURLQuery();
+    
+    loadBuffers();
+    reset();
+
+    scheduleRun();
+});
+
+function run() {
+    update();
+    if (running) {
+        circles[currentCircle].className = "timer red";
+        currentCircle++;
+        if (currentCircle == numberOfCircles) currentCircle = 0;
+        circles[currentCircle].className = "timer green";
+        if (playSounds) {
+            if (currentCircle == 0 || (currentCircle == (numberOfCircles - 1) && !sameBox)) {
+                playSound("kick", kickVol, 0);
+            }
+            if (currentCircle == (numberOfCircles - 1) || (currentCircle == (numberOfCircles - 2) && !sameBox)) {
+                if (useEighth) {
+                    playSound("snare", snareVol, msBetween / 2000);
+                }
+                if (useTriplet) {
+                    playSound("snare", snareVol, msBetween / 3000);
+                    playSound("snare", snareVol, msBetween * 2 / 3000);
+                }
+                if (useSixteenth) {
+                    playSound("snare", snareVol, msBetween / 4000);
+                    playSound("snare", snareVol, msBetween * 2 / 4000);
+                    playSound("snare", snareVol, msBetween * 3 / 4000);
+                }
+            }
+            playSound("snare", snareVol, 0);
+        }
+    }
+    scheduleRun();
+}
+
+function start() {
+    if (!running) {
+        running = true;
+        reset();
+    }
+}
+
+function stop() {
+    for (var circle of circles) circle.className = "timer red";
+    running = false;
+}
+
+function reset() {
+    update();
+    currentCircle = numberOfCircles - 1;
+}
+
+function update() {
+    totalLength = document.getElementById("totalMs").value;
+    numberOfCircles = document.getElementById("numCircles").value;
+    sameBox = document.getElementById("same").checked;
+    playSounds = document.getElementById("useSound").checked;
+    kickVol = document.getElementById("kickVol").value / 100;
+    snareVol = document.getElementById("snareVol").value / 100;
+    useEighth = document.getElementById("useEighth").checked;
+    useTriplet = document.getElementById("useTriplet").checked;
+    useSixteenth = document.getElementById("useSixteenth").checked;
+    
+    console.log(kickVol);
+
+    msBetween = totalLength / (numberOfCircles - 1);
+    if (same) msBetween = totalLength / (numberOfCircles);
+
+    makeCircles();
+}
+
+function setDefaultsByURLQuery(){
     var urlParams = new URLSearchParams(window.location.search);
     if(urlParams.has('totalMs')){
         document.getElementById('totalMs').value = urlParams.get('totalMs');
@@ -72,77 +148,6 @@ window.addEventListener('load', () => {
     if(urlParams.has('snareVolume')){
         document.getElementById('snareVol').value = urlParams.get('snareVolume');
     }
-    
-    
-    loadBuffers();
-    reset();
-
-    scheduleRun();
-});
-
-function run() {
-    update();
-    if (running) {
-        circles[currentCircle].className = "timer red";
-        currentCircle++;
-        if (currentCircle == numberOfCircles) currentCircle = 0;
-        circles[currentCircle].className = "timer green";
-        if (playSounds) {
-            if (currentCircle == 0 || (currentCircle == (numberOfCircles - 1) && !sameBox)) {
-                playSound("kick", kickVol);
-            }
-            if (currentCircle == (numberOfCircles - 1) || (currentCircle == (numberOfCircles - 2) && !sameBox)) {
-                if (useEighth) {
-                    playSound("snare", snareVol, msBetween / 2000);
-                }
-                if (useTriplet) {
-                    playSound("snare", snareVol, msBetween / 3000);
-                    playSound("snare", snareVol, msBetween * 2 / 3000);
-                }
-                if (useSixteenth) {
-                    playSound("snare", snareVol, msBetween / 4000);
-                    playSound("snare", snareVol, msBetween * 2 / 4000);
-                    playSound("snare", snareVol, msBetween * 3 / 4000);
-                }
-            }
-            playSound("snare", snareVol);
-        }
-    }
-    scheduleRun();
-}
-
-function start() {
-    if (!running) {
-        running = true;
-        reset();
-    }
-}
-
-function stop() {
-    for (var circle of circles) circle.className = "timer red";
-    running = false;
-}
-
-function reset() {
-    update();
-    currentCircle = numberOfCircles - 1;
-}
-
-function update() {
-    totalLength = document.getElementById("totalMs").value;
-    numberOfCircles = document.getElementById("numCircles").value;
-    sameBox = document.getElementById("same").checked;
-    playSounds = document.getElementById("useSound").checked;
-    kickVol = document.getElementById("kickVol").value / 100;
-    snareVol = document.getElementById("snareVol").value / 100;
-    useEighth = document.getElementById("useEighth").checked;
-    useTriplet = document.getElementById("useTriplet").checked;
-    useSixteenth = document.getElementById("useSixteenth").checked;
-
-    msBetween = totalLength / (numberOfCircles - 1);
-    if (same) msBetween = totalLength / (numberOfCircles);
-
-    makeCircles();
 }
 
 function scheduleRun() {

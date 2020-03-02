@@ -79,14 +79,9 @@ function loadBuffers() {
 }
 
 function playSound(sound, vol, time) {
-    if (!time) time = 0;
-    if (!vol) vol = 1;
-    if (!sound) sound = "snare";
-    var kick = BUFFERS.kick;
-    var snare = BUFFERS.snare;
     var buffer;
-    if (sound === "kick") buffer = kick;
-    if (sound === "snare") buffer = snare;
+    if (sound === "kick") buffer = BUFFERS.kick;
+    if (sound === "snare") buffer = BUFFERS.snare;
     var source = context.createBufferSource();
     source.buffer = buffer;
     var gainNode = context.createGain();
