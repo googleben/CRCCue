@@ -93,6 +93,58 @@ function update() {
     makeCircles();
 }
 
+function saveCookie(){
+    var values = saveValuesToObj();
+    var name = document.getElementById('cookieID').value;
+    var cookie = [name, '=', encodeURIComponent(JSON.stringify(values)), '; expires=Tue, 31 Dec 2120 23:59:59; path=/;'].join('');
+    document.cookie = cookie;
+}
+
+function saveValuesToObj(){
+    var obj = {};
+    obj.totalMs = document.getElementById('totalMs').value;
+    obj.numCircles = document.getElementById('numCircles').value;
+    if(document.getElementById('same').checked){
+        obj.pressYOn = "same";
+    }
+    else {
+        obj.pressYOn = "firstLast";
+    }
+    obj.useSound = document.getElementById('useSound').value;
+    obj.useEighth = document.getElementById('useEighth').value;
+    obj.useTriplet = document.getElementById('useTriplet').value;
+    obj.useSixteenth = document.getElementById('useSixteenth').value;
+    obj.kickVol = document.getElementById('kickVol').value;
+    obj.snareVol = document.getElementById('snareVol').value;
+    
+    return obj;
+}
+
+function loadCookie(){
+    var result = document.cookie.match(new RegExp(name + '=([^;]+)'));
+    result && (result = JSON.parse(decodeURIComponent(result[1])));
+    console.log(result);
+    loadValuesFromObj(result);
+}
+
+function loadValuesFromObj(obj){
+    document.getElementById('totalMs').value = obj.totalMs;
+    document.getElementById('numCircles').value = obj.numCircles;
+    if(obj.pressYOn == "same"){
+        document.getElementById('same').checked = true;
+    }
+    else {
+        document.getElementById('firstLast').checked = true;
+        console.log("firstlast");
+    }
+    document.getElementById('useSound').value = obj.useSound;
+    document.getElementById('useEighth').value = obj.useEighth;
+    document.getElementById('useTriplet').value = obj.useTriplet;
+    document.getElementById('useSixteenth').value = obj.useSixteenth;
+    document.getElementById('kickVol').value = obj.kickVol;
+    document.getElementById('snareVol').value = obj.snareVol;
+}
+
 function setDefaultsByURLQuery(){
     var urlParams = new URLSearchParams(window.location.search);
     if(urlParams.has('totalMs')){
