@@ -13,85 +13,94 @@
     <div id="container"><!-- contains all of the circles to show the beat --></div>
     
     <h1>Settings</h1>
-    
-    <label for="totalMs">Total milliseconds:</label>
-    <input id="totalMs" type="text" value="3102">
-    
-    <br/>
-    <br/>
-    
-    <label for="numCircles">Number of circles:</label>
-    <input id="numCircles" type="text" value="8">
-    
-    <br/>
-    <br/>
-    
-    <label for="pressYOn">Press Y on:</label>
-    <br/>
-    <input type="radio" id="firstLast" name="pressYOn">
-    <label for="firstLast">First then last circle</label>
-    <br/>
-    <input type="radio" id="same" name="pressYOn" checked="checked">
-    <label for="same">Same circle</label>
 
+    <div class="indent">
+    
+        <label for="totalMs">Total milliseconds:</label>
+        <input id="totalMs" type="text" value="3102">
+        
+        <br/>
+        <br/>
+        
+        <label for="numCircles">Number of circles:</label>
+        <input id="numCircles" type="text" value="8">
+        
+        <br/>
+        <br/>
+        
+        <label for="pressYOn">Press Y on:</label>
+        <br/>
+        <input type="radio" id="firstLast" name="pressYOn">
+        <label for="firstLast">First then last circle</label>
+        <br/>
+        <input type="radio" id="same" name="pressYOn" checked="checked">
+        <label for="same">Same circle</label>
+
+        <br/>
+        <br/>
+        
+        <input type="checkbox" id="useSound" name="useSound" value="useSound" checked="checked">
+        <label for="useSound">Play sounds</label>
+        
+        <br/>
+        <br/>
+        
+        <input type="checkbox" id="useEighth" name="useEighth" checked="checked">
+        <label for="useEighth">Eighth before kick</label>
+        <br/>
+        <input type="checkbox" id="useTriplet" name="useTriplet">
+        <label for="useTriplet">Triplet before kick</label>
+        <br/>
+        <input type="checkbox" id="useSixteenth" name="useSixteenth">
+        <label for="useSixteenth">Sixteenth before kick</label>
+        
+        <br/>
+        <br/>
+        
+        <div class="flexContainer">
+            <div class="flexElement"></div>
+        </div>
+        <table>
+        <tr>
+            <td>
+            <label for="kickVol">Kick Volume:</label>
+            </td>
+            <td>
+            <input type="range" min="0" max="100" value="100" id="kickVol">
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <label for="snareVol">Snare Volume:</label>
+            </td>
+            <td>
+            <input type="range" min="0" max="100" value="100" id="snareVol">
+            </td>
+        </tr>
+        </table>
+        
+        <br/>
+        
+        <button onclick="reset()">Restart</button>
+        <br/>
+        <button onclick="stop()">Stop</button>
+        <button onclick="start()">Start</button>
+    </div>
     <br/>
+    <br/>
+    <h3>Locally saved settings</h3>
+    <p>
+        <label for="cookieID">Name of settings:</label>
+        <input id="cookieID" type="text">
+        <br/>
+        <button onclick="loadCookie()">Load</button>
+        <button onclick="saveCookie()">Save</button>
+    </p>
+    
     <br/>
     
-    <input type="checkbox" id="useSound" name="useSound" value="useSound" checked="checked">
-    <label for="useSound">Play sounds</label>
-    
-    <br/>
-    <br/>
-    
-    <input type="checkbox" id="useEighth" name="useEighth" checked="checked">
-    <label for="useEighth">Eighth before kick</label>
-    <br/>
-    <input type="checkbox" id="useTriplet" name="useTriplet">
-    <label for="useTriplet">Triplet before kick</label>
-    <br/>
-    <input type="checkbox" id="useSixteenth" name="useSixteenth">
-    <label for="useSixteenth">Sixteenth before kick</label>
-    
-    <br/>
-    <br/>
-    
-    <table>
-      <tr>
-        <td>
-          <label for="kickVol">Kick Volume:</label>
-        </td>
-        <td>
-          <input type="range" min="0" max="100" value="100" id="kickVol">
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <label for="snareVol">Snare Volume:</label>
-        </td>
-        <td>
-          <input type="range" min="0" max="100" value="100" id="snareVol">
-        </td>
-      </tr>
-    </table>
-    
-    <br/>
-    
-    <button onclick="reset()">Restart</button>
-    <br/>
-    <button onclick="stop()">Stop</button>
-    <button onclick="start()">Start</button>
-    
-    <br/>
-    <br/>
-    
-    <input id="cookieID" type="text">
-    <button onclick="loadCookie()">Load</button>
-    <button onclick="saveCookie()">Save</button>
-    
-    <br/>
-    <br/>
-    
-    <a href="" id="url" class="url" style="text-size: 10px;">Link to current settings</a>
+    <h3>Shareable settings</h3>
+    <p><a href="" id="url" class="url" style="color: #0000EE">Link to current settings</a></p>
     
     <h1>Instructions</h1>
     <p>
@@ -118,6 +127,14 @@
     </p>
     <p>
         <b>Kick/Snare Volume:</b> The volume of the kick and snare in the audio cue.
+    </p>
+    <h2>Load/save with cookies</h2>
+    <p>
+        You can save multiple settings with cookies by naming your presets. Just enter a name for your settings in the text box, then click Load or Save.
+    </p>
+    <h2>Share settings with a link</h2>
+    <p>
+        To share your current settings, just copy the link and send it. Clicking this link will load exactly what the settings were when the link was copied.
     </p>
 </body>
 

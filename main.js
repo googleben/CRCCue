@@ -98,6 +98,8 @@ function reset() {
     currentCircle = numberOfCircles - 1;
 }
 
+var started = false;
+
 function update() {
     totalLength = document.getElementById("totalMs").value;
     numberOfCircles = document.getElementById("numCircles").value;
@@ -109,13 +111,17 @@ function update() {
     useTriplet = document.getElementById("useTriplet").checked;
     useSixteenth = document.getElementById("useSixteenth").checked;
     
+    var a = document.getElementById("url");
     var url = getURLForCurrentSettings();
-    document.getElementById("url").href = url;
+    var prevUrl = a.href;
+    a.href = url;
+    url = a.href;
 
     msBetween = totalLength / (numberOfCircles - 1);
     if (same) msBetween = totalLength / (numberOfCircles);
 
-    makeCircles();
+    if (prevUrl != url || !started) makeCircles();
+    started = true;
 }
 
 function saveCookie(){
@@ -169,7 +175,7 @@ function loadValuesFromObj(obj){
 }
 
 function getURLForCurrentSettings(){
-    var url = "/CRCCue/?totalMs=";
+    var url = "./?totalMs=";
     url += document.getElementById('totalMs').value;
     url += "&numCircles=";
     url += document.getElementById('numCircles').value;
